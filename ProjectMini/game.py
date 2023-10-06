@@ -13,6 +13,7 @@ game=Tk()
 game.title("Catch Apple")
 can = Canvas(master=game, width=700, height=525, background="white")
 can.pack()
+missed_apples = 0  # Tthem bien tao
 img[0]=ImageTk.PhotoImage(Image.open("backgr.png"))
 img[1]=ImageTk.PhotoImage(Image.open("bowl.png"))
 img[2]=ImageTk.PhotoImage(Image.open("apple.png"))
@@ -25,7 +26,7 @@ score=0
 text_score=can.create_text(620,30,text="SCORE:"+str(score), fil="red",font=("Times",20))
 #ham qua tao roi
 def AppleFall():
-    global apple, score
+    global apple, score, missed_apples
 
     # Di chuyen qua tao xuong
     can.move(apple, 0, 10)
@@ -36,6 +37,9 @@ def AppleFall():
         y = -20
         x = randint(10, 690)
         apple = can.create_image(x, y, anchor=NW, image=img[2])  # Draw a new apple
+        missed_apples += 1  # Tăng số trái táo đã bỏ qua
+        if missed_apples >= 3:  # Kiểm tra nếu số trái táo bỏ qua đạt đến 3
+            game_over()
    
 
     #Kta xem qua tao co cham vao chen khong
@@ -49,6 +53,7 @@ def AppleFall():
         apple = can.create_image(x, y, anchor=NW, image=img[2])  
         score += 1  
         can.itemconfig(text_score, text="SCORE:" + str(score))  #Cap nhat diem
+    
     
     can.update()
 
@@ -69,12 +74,11 @@ def keyPress(event): #tao su kien khi nhan nut
         left()
 
 
-def game_over_message():
-    global game_over
-    game_over = True
-    messagebox.showinfo("Game Over", "Your score: " + str(score))
-  
-
+def game_over():
+    global gameOver
+    gameOver = True
+    messagebox.showinfo("Game Over!", "Score: " + str(score))
+    game.destroy()
     
 can.bind_all("<KeyPress>",keyPress)#gan su kien
 gameOver=False
