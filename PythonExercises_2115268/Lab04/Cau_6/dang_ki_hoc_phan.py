@@ -1,198 +1,176 @@
-from tkinter import *
 from openpyxl import *
+from tkinter import *
 from tkinter import ttk
+import re
+from openpyxl import Workbook
+import tkinter
 from tkinter import messagebox
 
+# kiểm tra điều kiện mã số sinh viên
+def validate_mssv_input(event):
+    mssv = mssv_field.get()
+    if not mssv.isdigit() or len(mssv) != 7:
+        messagebox.showerror("Lỗi", "MSSV phải chứa đúng 7 số.")
+        mssv_field.delete(0, "end")  # Xóa nội dung nhập sai
+# kiểm tra email nhập vào
+def validate_email_input():
+    email = email_field.get()
+    pattern = r'^\w+@\w+\.\w+$'
+    if not re.match(pattern, email):
+        messagebox.showerror("Lỗi", "Email không hợp lệ.")
+        email_field.delete(0, "end")
+# kiểm tra số điện thoại nhập vào
+def validate_sdt_input(event):
+    sdt = sdt_field.get()
+    if not sdt.isdigit() or len(sdt) != 10:
+        messagebox.showerror("Lỗi", "Số điện thoại phải chứa đúng 10 số.")
+        sdt_field.delete(0, "end")
+# kiểm tra học kỳ nhập vào đúng hay chưa
+def validate_hocky_input(event):
+    hocky = hocky_field.get()
+    if hocky not in ["1", "2", "3"]:
+        messagebox.showerror("Lỗi", "Học kỳ phải là 1, 2 hoặc 3.")
+        hocky_field.delete(0, "end")
+# kiểm tra định dạng ngày sinh nhập vào
+def validate_ngaysinh_input():
+    ngaysinh = ngaysinh_field.get()
+    pattern = r'^\d{2}/\d{2}/\d{4}$'
+    if not re.match(pattern, ngaysinh):
+        messagebox.showerror("Lỗi", "Ngày sinh không đúng định dạng dd/mm/yyyy.")
+        ngaysinh_field.delete(0, "end")
+# nút gửi
+def submit():
+    mssv = mssv_field.get()
+    hoten = hoten_field.get()
+    ngaysinh = ngaysinh_field.get()
+    email = email_field.get()
+    sdt = sdt_field.get()
+    hocky = hocky_field.get()
+    namhoc = namhoc_field.get()
 
-wb = load_workbook(r'C:\Users\Admin\Desktop\dangki.xlsx')
-sheet = wb.active
+    # Kiểm tra xem có chọn ít nhất một môn học hay không
+    if not var1.get() and not var2.get() and not var3.get() and not var4.get():
+        messagebox.showerror("Lỗi", "Vui lòng chọn ít nhất một môn học.")
+        return
 
-def validate_student_id():
-    numbers = numbers_field.get()
-    if not numbers.isdigit() or len(numbers_field) != 7:
-        messagebox.showerror("Lỗi", "Mã số sinh viên phải là 7 chữ số.")
-    else:
-        return True
+    # Kiểm tra điều kiện về mã số sinh viên, email, số điện thoại, học kỳ, và ngày sinh
+    if (
+        not mssv or len(mssv) != 7 or not mssv.isdigit() or
+        not re.match(r'^\w+@\w+\.\w+$', email) or
+        not sdt.isdigit() or len(sdt) != 10 or
+        hocky not in ["1", "2", "3"] or
+        not re.match(r'^\d{2}/\d{2}/\d{4}$', ngaysinh)
+    ):
+        messagebox.showerror("Lỗi", "Vui lòng kiểm tra lại thông tin.")
+        return
 
-def excel():
-	
+    # Tạo một Workbook mới và lựa chọn một sheet (hoặc tạo một sheet mới)
+    wb = Workbook()
+    sheet = wb.active
 
-	sheet.column_dimensions['A'].width = 30
-	sheet.column_dimensions['B'].width = 10
-	sheet.column_dimensions['C'].width = 10
-	sheet.column_dimensions['D'].width = 20
-	sheet.column_dimensions['E'].width = 20
-	sheet.column_dimensions['F'].width = 40
-	sheet.column_dimensions['G'].width = 50
+    # Thêm thông tin vào các cột
+    sheet.append(["Mã số sinh viên", "Họ tên", "Ngày sinh", "Email", "Số điện thoại", "Học kỳ", "Năm học", "Môn học"])
 
- 
+    # Điền thông tin của sinh viên
+    selected_courses = []
+    if var1.get():
+        selected_courses.append("Lập trình Python")
+    if var2.get():
+        selected_courses.append("Lập trình Java")
+    if var3.get():
+        selected_courses.append("Công nghệ phần mềm")
+    if var4.get():
+        selected_courses.append("Phát triển ứng dụng web")
 
-	sheet.cell(row=1, column=1).value = "Mssv"
-	sheet.cell(row=1, column=2).value = "Họ tên"
-	sheet.cell(row=1, column=3).value = "Ngày sinh"
-	sheet.cell(row=1, column=4).value = "Email"
-	sheet.cell(row=1, column=5).value = "Số điện thoại"
-	sheet.cell(row=1, column=6).value = "Học kỳ "
-	sheet.cell(row=1, column=7).value = "Năm học"
-  
+    sheet.append([mssv, hoten, ngaysinh, email, sdt, hocky, namhoc, ", ".join(selected_courses)])
 
-def focus1(event):
-	numbers_field.focus_set()
+    # Lưu tập tin Excel
+    wb.save('dangkyhocphan.xlsx')
 
-def focus2(event):
-	name_field.focus_set()
-
-def focus3(event):
-	daytime_field.focus_set()
-
-def focus4(event):
-	email_field.focus_set()
- 
-def focus5(event):
-	phone_field.focus_set()
-
-
-def focus6(event):
-	semester_field.focus_set()
- 
-def focus7(event):
-	year_field.focus_set()
- 
-
-
-def clear():
-	
-	numbers_field.delete(0, END)
-	name_field.delete(0, END)
-	daytime_field.delete(0, END)
-	email_field.delete(0, END)
-	phone_field.delete(0, END)
-	semester_field.delete(0, END)
-	year_field.delete(0, END)
-
-
-# Function to take data from GUI
-# window and write to an excel file
-def insert():
-	
-	# if user not fill any entry
-	# then print "empty input"
-	if (numbers_field.get() == "" and
-		name_field.get() == "" and
-		daytime_field.get() == "" and
-		email_field.get() == "" and
-		phone_field.get() == "" and
-		semester_field.get() == "" and
-		year_field.get() == ""):
-
-        
-			
-		print("empty input")
-
-	else:
-
-		current_row = sheet.max_row
-		current_column = sheet.max_column
-
-		sheet.cell(row=current_row + 1, column=1).value = numbers_field.get()
-		sheet.cell(row=current_row + 1, column=2).value = name_field.get()
-		sheet.cell(row=current_row + 1, column=3).value = daytime_field.get()
-		sheet.cell(row=current_row + 1, column=4).value = email_field.get()
-		sheet.cell(row=current_row + 1, column=5).value = phone_field.get()
-		sheet.cell(row=current_row + 1, column=6).value = semester_field.get()
-		sheet.cell(row=current_row + 1, column=7).value = year_field.get()
-
-		# save the file
-		wb.save(r'C:\Users\Admin\Desktop\dangki.xlsx')
-
-		# set focus on the name_field box
-		name_field.focus_set()
-
-		# call the clear() function
-		clear()
-
-  
-if __name__ == "__main__":
+    messagebox.showinfo("Thông báo", "Đăng ký thành công.")
+if __name__=="__main__":
+   
     root = Tk()
-    root.configure(background='light blue')
-    root.title("Đăng kí học phần")
-    root.geometry("550x300")
-    #tao Form label
-    heading = Label(root, text="THÔNG TIN ĐĂNG KÝ HỌC PHẦN", font=('Serif 14'), fg="Red" , bg="light blue")
-    numbers = Label(root, text="Mã số sinh viên", bg="light blue")
-    fullname = Label(root, text="Họ tên", bg="light blue")
-    daytime = Label(root, text="Ngày sinh", bg="light blue")
-    email = Label(root, text="Email", bg="light blue")
-    phone = Label(root, text="Số điện thoại", bg="light blue")
-    semester = Label(root, text="Học kỳ", bg="light blue")
-    year = Label(root, text="Năm học", bg="light blue")
-    choose_subjects = Label(root, text="Chọn môn học", bg="light blue")
-    cb_1 = Checkbutton(root, text="Lập trình Python", bg="light blue")
-    cb_2 = Checkbutton(root, text="Lập trình Công nghệ phần mềm", bg="light blue")
-    cb_3 = Checkbutton(root, text="Lập trình Java", bg="light blue")
-    cb_4 = Checkbutton(root, text="Lập trình Phát triển ứng dụng web", bg="light blue")
-    btn_singup =Button(root, text="Đăng ký", bg="green1", command=insert)
-    btn_exit = Button(root, text="Thoát", bg="green1", command=root.quit)
-   
-    #hien box
-    heading.grid(row=0, column=1)
-    numbers.grid(row=1, column=0)
-    fullname.grid(row=2, column=0)
-    daytime.grid(row=3, column=0)
-    email.grid(row=4, column=0)
-    phone.grid(row=5, column=0)
-    semester.grid(row=6, column=0)
-    year.grid(row=7, column=0)
-    btn_singup.grid(row=11, column=0)
-    btn_exit.grid(row=11, column=1)
-  
-    choose_subjects.grid(row=8, column=0)
-    cb_1.grid(row=9, column=0)
-    cb_2.grid(row=10, column=1)
-    cb_3.grid(row=9, column=0)
-    cb_4.grid(row=10, column=1)
-   
-    btn_exit.grid(row=11, column=1)
-    
-    
-   
-    # tao box
-    numbers_field = Entry(root)
-    name_field = Entry(root)
-    daytime_field = Entry(root)
-    email_field = Entry(root)
-    phone_field = Entry(root)
-    semester_field = Entry(root)
-    year_field = ttk.Combobox(root)
-    
-    #
-    numbers_field.bind("<Return>", focus1)
-    name_field.bind("<Return>", focus2)
-    daytime_field.bind("<Return>", focus3)
-    email_field.bind("<Return>", focus4)
-    phone_field.bind("<Return>", focus5)
-    semester_field.bind("<Return>", focus6)
-    year_field.bind("<Return>", focus7)
-    
-    #ds nam hoc trong combobox
-    year_field['values'] =('2022-2023', '2023-2024','2024-2025')
-    year_field.current()
-    #chieu dai hop
-    numbers_field.grid(row=1, column=1, ipadx="100")
-    name_field.grid(row=2, column=1, ipadx="100")
-    daytime_field.grid(row=3, column=1, ipadx="100")
-    email_field.grid(row=4, column=1, ipadx="100")
-    phone_field.grid(row=5, column=1, ipadx="100")
-    semester_field.grid(row=6, column=1, ipadx="100")
-    year_field.grid(row=7, column=1, ipadx="92")
-    cb_1.grid(row=9, column=1, ipadx='100')
-    #goi ham 
-    excel()
-    #
-    
-    
-    
-    def onExit(self):
-        self.quit()
-   #
+    var1 = IntVar()
+    var2 = IntVar()
+    var3 = IntVar()
+    var4 = IntVar()
+    # set màu nền cho cửa sổ
+    root.configure(background='light green')
+ 
+    # set tên của chương trình
+    root.title("Đăng ký học phần")
+ 
+    # set giá trị cửa sổ là 500 x 300
+    root.geometry("500x300")
+    # tạo 1 heading "THÔNG TIN ĐĂNG KÝ HỌC PHẦN", background, màu chữ, vị trí xuất hiện, font, size, kiểu chữ
+    heading = Label(root, text="THÔNG TIN ĐĂNG KÝ HỌC PHẦN", bg="light green", fg="red", font=("Arial", 15, "bold")).place(x=120, y=5)
+
+    mssv = Label(root, text="Mã số sinh viên", bg="light green").place(x=10, y=30)
+ 
+    # tạo label "Họ tên"
+    hoten = Label(root, text="Họ tên", bg="light green").place(x=10, y=50)
+ 
+    # tạo label "ngày sinh"
+    ngaysinh = Label(root, text="Ngày sinh", bg="light green").place(x=10, y=70)
+ 
+    # tạo label "Email"
+    email = Label(root, text="Email", bg="light green").place(x=10, y=90)
+ 
+    # tạo label "Số điện thoại"
+    sdt = Label(root, text="Số điện thoại", bg="light green").place(x=10, y=110)
+ 
+    # Tạo label "Học kỳ"
+    hocky = Label(root, text="Học kỳ", bg="light green").place(x=10, y=130)
+ 
+    # Tạo label "năm học"
+    namhoc = Label(root, text="Năm học", bg="light green").place(x=10, y=150)
+    # tạo label "Chọn môn học"
+    chonmonhoc = Label(root, text="Chọn môn học", bg="light green").place(x=10, y=170)
+
+
+
+    # tạo ô mã số sinh viên và vị trí xuất hiện
+    mssv_field = Entry(root, width=51)
+    mssv_field.place(x=130, y=30)
+    # tạo ô nhập họ tên và vị trí xuất hiện
+    hoten_field = Entry(root, width=51)
+    hoten_field.place(x=130, y=50)
+    # tạo ô nhập ngày sinh và vị trí xuất hiện
+    ngaysinh_field = Entry(root, width=51)
+    ngaysinh_field.place(x=130, y=70)
+    # tạo ô nhập email và vị trí xuất hiện
+    email_field = Entry(root, width=51)
+    email_field.place(x=130, y=90)
+    # tạo ô nhập số điện thoại và vị trí xuất hiện
+    sdt_field = Entry(root, width=51)
+    sdt_field.place(x=130, y=110)
+    # tạo ô nhập học kỳ và vị trí (.place) vị trí xuất hiện
+    hocky_field = Entry(root, width=51)
+    hocky_field.place(x=130, y=130)
+    #tạo ô combobox để chọn năm học, điền dữ liệu thông qua ['value] = ('giá trị')
+    namhoc_field = ttk.Combobox(root, width=48)
+    namhoc_field.place(x=130, y=150)
+    namhoc_field['values'] = (' 2022 - 2023', ' 2023 - 2024',' 2024 - 2025')
+    # mặc định xuất hiện giá trị ở vị trí (0)
+    namhoc_field.current(0)
+
+    # tạo 4 checkbutton
+    cbPython = Checkbutton(root, text="Lập trình Python", variable=var1,bg="light green").place(x=125, y =170)
+    cbJava = Checkbutton(root, text="Lập trình Java", variable=var2,bg="light green").place(x=290, y =170)
+    cbCnpm = Checkbutton(root, text="Công nghệ phần mềm", variable=var3,bg="light green").place(x=125, y =210)
+    cbPTUDW = Checkbutton(root, text="Phát triển ứng dụng web", variable=var4,bg="light green").place(x=290, y =210)
+    # tạo nút đăng ký và nút thoát, nút đăng ký lấy từ hàm submit
+    btnDangKy = Button(root, text="Đăng ký", font=("arial", 11, "bold"), bd=1, fg="black", bg="dark green", command=submit).place(x=150, y=260)
+    btnThoat =Button(root, text="Thoát",font=("arial",11, "bold"),bd=1, fg="black",bg="dark green",command=exit).place(x=330, y=260)
+    # kiểm tra xem nhập đúng mã số sinh viên, email, số điện thoại, học kỳ, ngày sinh thông qua các hàm đã tạo trước đó
+    mssv_field.bind("<FocusOut>", validate_mssv_input)
+    email_field.bind("<FocusOut>", lambda e: validate_email_input())
+    sdt_field.bind("<FocusOut>", validate_sdt_input)
+    hocky_field.bind("<FocusOut>", validate_hocky_input)
+    ngaysinh_field.bind("<FocusOut>", lambda e: validate_ngaysinh_input())
+
     root.mainloop()
+
+    
+ 
