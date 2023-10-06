@@ -33,10 +33,10 @@ def AppleFall():
 
     # Ktra xam qua tao co roi ra khoi khung
     if can.coords(apple)[1] > 550:
-        can.delete(apple)  # Delete the apple
+        can.delete(apple)  
         y = -20
         x = randint(10, 690)
-        apple = can.create_image(x, y, anchor=NW, image=img[2])  # Draw a new apple
+        apple = can.create_image(x, y, anchor=NW, image=img[2])  
         missed_apples += 1  # Tăng số trái táo đã bỏ qua
         if missed_apples >= 3:  # Kiểm tra nếu số trái táo bỏ qua đạt đến 3
             game_over()
